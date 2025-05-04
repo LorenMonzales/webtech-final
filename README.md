@@ -20,9 +20,7 @@ ApexCharts for data visualization
 
 Setup and Installation
 
-1. Clone the repository:
-    git clone <repository_url>
-    cd <project_directory>
+1. Clone the repository
 
 2. Install dependencies:
     npm install 
@@ -32,6 +30,7 @@ Setup and Installation
 
     The application will be accessible at `http://localhost:3000`.
 
+   
 Team Member Contributions
 
 Loren Monzales
