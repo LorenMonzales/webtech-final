@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Post, Comment } from "@/types";
+import { Post } from "@/types"; 
 
-// Dynamic import to avoid SSR issues with ApexCharts
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface OverviewChartProps {
   posts: Post[];
-  comments: Comment[];
 }
 
 interface ChartData {
@@ -24,7 +22,7 @@ interface ChartData {
   }[];
 }
 
-export default function OverviewChart({ posts, comments }: OverviewChartProps) {
+export default function OverviewChart({ posts }: OverviewChartProps) { // ← Wala nang comments
   const [chartData, setChartData] = useState<ChartData>({
     options: {
       chart: { id: "overview", type: "bar" },
