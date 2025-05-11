@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Post } from "@/types";
+import { ApexOptions } from "apexcharts"; // <--- Import ApexOptions!!
 
-// Dynamic import to avoid SSR issues with ApexCharts
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface UserPostsChartProps {
@@ -12,22 +12,13 @@ interface UserPostsChartProps {
   userId: number;
 }
 
-interface ChartData {
-  options: {
-    chart: { id: string; type: string };
-    xaxis: { categories: string[] };
-    colors: string[];
-  };
-  series: {
-    name: string;
-    data: number[];
-  }[];
-}
-
 export default function UserPostsChart({ posts, userId }: UserPostsChartProps) {
-  const [chartData, setChartData] = useState<ChartData>({
+  const [chartData, setChartData] = useState<{
+    options: ApexOptions;
+    series: { name: string; data: number[] }[];
+  }>({
     options: {
-      chart: { id: "user-posts", type: "bar" },
+      chart: { id: "user-posts", type: "bar" }, // <--- Type-safe "bar"
       xaxis: { categories: [] },
       colors: ["#34D399"],
     },
@@ -54,7 +45,7 @@ export default function UserPostsChart({ posts, userId }: UserPostsChartProps) {
         series: [
           {
             name: "Posts",
-            data: userPosts.map(() => 1), // 1 post per entry
+            data: userPosts.map(() => 1), // 1 post = 1 bar
           },
         ],
       }));
