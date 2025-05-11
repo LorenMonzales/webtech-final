@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Post, Comment } from "@/types";
+import { ApexOptions } from "apexcharts"; // <- import ApexOptions!
 
-// Dynamic import to avoid SSR issues with ApexCharts
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface CommentsChartProps {
@@ -12,33 +12,14 @@ interface CommentsChartProps {
   comments: Comment[];
 }
 
-interface ChartData {
-  options: {
-    chart: { type: string; toolbar: { show: boolean } };
-    plotOptions: { bar: { horizontal: boolean; columnWidth: string } };
-    dataLabels: { enabled: boolean };
-    stroke: { show: boolean; width: number; colors: string[] };
-    xaxis: { categories: string[] };
-    yaxis: { title: { text: string } };
-    fill: { opacity: number };
-    tooltip: {
-      y: {
-        formatter: (val: number) => string;
-      };
-    };
-    colors: string[];
-  };
-  series: {
-    name: string;
-    data: number[];
-  }[];
-}
-
 export default function CommentsChart({ posts, comments }: CommentsChartProps) {
-  const [chartData, setChartData] = useState<ChartData>({
+  const [chartData, setChartData] = useState<{
+    options: ApexOptions;
+    series: { name: string; data: number[] }[];
+  }>({
     options: {
       chart: {
-        type: "bar",
+        type: "bar", // <- Type-safe na
         toolbar: { show: false },
       },
       plotOptions: {
