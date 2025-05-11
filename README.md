@@ -18,7 +18,8 @@ React Query for state management
 Axios for API requests
 ApexCharts for data visualization
 
-Setup and Installation
+
+Setup and Installation:
 
 1. Clone the repository
 
@@ -31,7 +32,7 @@ Setup and Installation
     The application will be accessible at `http://localhost:3000`.
 
    
-Team Member Contributions
+Team Member Contributions:
 
 Loren Monzales
 -Project Setup and Configuration
