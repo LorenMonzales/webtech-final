@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Post } from "@/types"; 
+import { Post } from "@/types";
+import { ApexOptions } from "apexcharts"; // <-- IMPORT ApexOptions!!
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -10,22 +11,13 @@ interface OverviewChartProps {
   posts: Post[];
 }
 
-interface ChartData {
-  options: {
-    chart: { id: string; type: string };
-    xaxis: { categories: string[] };
-    colors: string[];
-  };
-  series: {
-    name: string;
-    data: number[];
-  }[];
-}
-
-export default function OverviewChart({ posts }: OverviewChartProps) { // ← Wala nang comments
-  const [chartData, setChartData] = useState<ChartData>({
+export default function OverviewChart({ posts }: OverviewChartProps) {
+  const [chartData, setChartData] = useState<{
+    options: ApexOptions;
+    series: { name: string; data: number[] }[];
+  }>({
     options: {
-      chart: { id: "overview", type: "bar" },
+      chart: { id: "overview", type: "bar" }, // ← now safe!
       xaxis: { categories: [] },
       colors: ["#6366F1"],
     },
