@@ -12,45 +12,46 @@ interface CommentsChartProps {
   comments: Comment[];
 }
 
+interface ChartData {
+  options: {
+    chart: { type: string; toolbar: { show: boolean } };
+    plotOptions: { bar: { horizontal: boolean; columnWidth: string } };
+    dataLabels: { enabled: boolean };
+    stroke: { show: boolean; width: number; colors: string[] };
+    xaxis: { categories: string[] };
+    yaxis: { title: { text: string } };
+    fill: { opacity: number };
+    tooltip: {
+      y: {
+        formatter: (val: number) => string;
+      };
+    };
+    colors: string[];
+  };
+  series: {
+    name: string;
+    data: number[];
+  }[];
+}
+
 export default function CommentsChart({ posts, comments }: CommentsChartProps) {
-  const [chartData, setChartData] = useState<any>({
+  const [chartData, setChartData] = useState<ChartData>({
     options: {
       chart: {
         type: "bar",
-        toolbar: {
-          show: false,
-        },
+        toolbar: { show: false },
       },
       plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: "55%",
-        },
+        bar: { horizontal: false, columnWidth: "55%" },
       },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ["transparent"],
-      },
-      xaxis: {
-        categories: [],
-      },
-      yaxis: {
-        title: {
-          text: "Number of Comments",
-        },
-      },
-      fill: {
-        opacity: 1,
-      },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 2, colors: ["transparent"] },
+      xaxis: { categories: [] },
+      yaxis: { title: { text: "Number of Comments" } },
+      fill: { opacity: 1 },
       tooltip: {
         y: {
-          formatter: function (val: number) {
-            return val + " comments";
-          },
+          formatter: (val: number) => `${val} comments`,
         },
       },
       colors: ["#8B5CF6"],
@@ -65,44 +66,41 @@ export default function CommentsChart({ posts, comments }: CommentsChartProps) {
 
   useEffect(() => {
     if (posts.length > 0 && comments.length > 0) {
-      // Group comments by post ID
       const commentsByPost: Record<string, number> = {};
-      
+
       comments.forEach((comment) => {
         const postId = comment.postId.toString();
         commentsByPost[postId] = (commentsByPost[postId] || 0) + 1;
       });
-      
-      // Get top 5 posts with most comments
+
       const topPostIds = Object.keys(commentsByPost)
         .sort((a, b) => commentsByPost[b] - commentsByPost[a])
         .slice(0, 5);
-      
-      const topPosts = topPostIds.map(id => {
-        const post = posts.find(p => p.id === parseInt(id));
+
+      const topPosts = topPostIds.map((id) => {
+        const post = posts.find((p) => p.id === parseInt(id));
         return {
           id,
           title: post ? post.title.slice(0, 20) + "..." : `Post ${id}`,
           comments: commentsByPost[id],
         };
       });
-      
-      // Update chart data
-      setChartData({
-        ...chartData,
+
+      setChartData((prev) => ({
+        ...prev,
         options: {
-          ...chartData.options,
+          ...prev.options,
           xaxis: {
-            categories: topPosts.map(post => `Post ${post.id}`),
+            categories: topPosts.map((post) => `Post ${post.id}`),
           },
         },
         series: [
           {
             name: "Comments",
-            data: topPosts.map(post => post.comments),
+            data: topPosts.map((post) => post.comments),
           },
         ],
-      });
+      }));
     }
   }, [posts, comments]);
 

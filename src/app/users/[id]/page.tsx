@@ -6,24 +6,27 @@ import Navbar from "@/components/layout/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
-  const userId = params.id;
+export default function UserProfilePage() {
+  const { id } = useParams();
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
-    queryKey: ["user", userId],
-    queryFn: () => getUser(userId),
+    queryKey: ["user", id],
+    queryFn: () => getUser(id),
+    enabled: !!id,
   });
 
   const { data: posts, isLoading: isLoadingPosts } = useQuery({
-    queryKey: ["userPosts", userId],
-    queryFn: () => getUserPosts(userId),
+    queryKey: ["userPosts", id],
+    queryFn: () => getUserPosts(id),
+    enabled: !!id,
   });
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-      
+
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {isLoadingUser ? (
@@ -42,7 +45,7 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                 </Link>
                 <h1 className="text-2xl font-semibold text-gray-900">User Profile</h1>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
                   <Card>
@@ -57,46 +60,56 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                         <h2 className="text-xl font-semibold">{user.name}</h2>
                         <p className="text-gray-500">@{user.username}</p>
                       </div>
-                      
+
                       <div className="space-y-4">
                         <div>
                           <p className="text-sm font-medium text-gray-500">Email</p>
                           <p className="mt-1">{user.email}</p>
                         </div>
-                        
+
                         <div>
                           <p className="text-sm font-medium text-gray-500">Phone</p>
                           <p className="mt-1">{user.phone}</p>
                         </div>
-                        
+
                         <div>
                           <p className="text-sm font-medium text-gray-500">Website</p>
                           <p className="mt-1">{user.website}</p>
                         </div>
-                        
+
                         <Separator />
-                        
+
                         <div>
                           <p className="text-sm font-medium text-gray-500">Company</p>
                           <p className="mt-1 font-medium">{user.company.name}</p>
-                          <p className="text-sm text-gray-500 italic">"{user.company.catchPhrase}"</p>
+                          <p className="text-sm text-gray-500 italic">&quot;{user.company.catchPhrase}&quot;</p>
                           <p className="text-sm text-gray-500">{user.company.bs}</p>
                         </div>
-                        
+
                         <Separator />
-                        
+
                         <div>
                           <p className="text-sm font-medium text-gray-500">Address</p>
                           <p className="mt-1">{user.address.street}, {user.address.suite}</p>
                           <p>{user.address.city}, {user.address.zipcode}</p>
                         </div>
-                        
 
+                        <div className="mt-4">
+                          <h3 className="text-sm font-medium text-gray-500 mb-2">Location on Map</h3>
+                          <iframe
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                            allowFullScreen
+                            src={`https://maps.google.com/maps?q=${encodeURIComponent(user.address.street + ', ' + user.address.city)}&z=12&output=embed`}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
-                
+
                 <div className="lg:col-span-2">
                   <Card>
                     <CardHeader>

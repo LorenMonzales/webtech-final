@@ -2,58 +2,76 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Stats } from "@/types";
+import { Post, Comment } from "@/types";
 
 // Dynamic import to avoid SSR issues with ApexCharts
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface OverviewChartProps {
-  stats: Stats;
+  posts: Post[];
+  comments: Comment[];
 }
 
-export default function OverviewChart({ stats }: OverviewChartProps) {
-  const [chartData, setChartData] = useState<any>({
+interface ChartData {
+  options: {
+    chart: { id: string; type: string };
+    xaxis: { categories: string[] };
+    colors: string[];
+  };
+  series: {
+    name: string;
+    data: number[];
+  }[];
+}
+
+export default function OverviewChart({ posts, comments }: OverviewChartProps) {
+  const [chartData, setChartData] = useState<ChartData>({
     options: {
-      chart: {
-        type: "donut",
-      },
-      labels: ["Users", "Posts", "Comments"],
-      colors: ["#3B82F6", "#10B981", "#8B5CF6"],
-      legend: {
-        position: "bottom",
-      },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 300,
-            },
-            legend: {
-              position: "bottom",
-            },
-          },
-        },
-      ],
-      tooltip: {
-        y: {
-          formatter: function (val: number) {
-            return val.toString();
-          },
-        },
-      },
+      chart: { id: "overview", type: "bar" },
+      xaxis: { categories: [] },
+      colors: ["#6366F1"],
     },
-    series: [0, 0, 0],
+    series: [
+      {
+        name: "Posts",
+        data: [],
+      },
+    ],
   });
 
   useEffect(() => {
-    if (stats) {
-      setChartData({
-        ...chartData,
-        series: [stats.users, stats.posts, stats.comments],
+    if (posts.length > 0) {
+      const postsPerUser: Record<number, number> = {};
+
+      posts.forEach((post) => {
+        postsPerUser[post.userId] = (postsPerUser[post.userId] || 0) + 1;
       });
+
+      const topUsers = Object.entries(postsPerUser)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([userId, postCount]) => ({
+          userId,
+          postCount,
+        }));
+
+      setChartData((prev) => ({
+        ...prev,
+        options: {
+          ...prev.options,
+          xaxis: {
+            categories: topUsers.map((user) => `User ${user.userId}`),
+          },
+        },
+        series: [
+          {
+            name: "Posts",
+            data: topUsers.map((user) => user.postCount),
+          },
+        ],
+      }));
     }
-  }, [stats]);
+  }, [posts]);
 
   return (
     <div className="h-80">
@@ -61,7 +79,7 @@ export default function OverviewChart({ stats }: OverviewChartProps) {
         <ReactApexChart
           options={chartData.options}
           series={chartData.series}
-          type="donut"
+          type="bar"
           height="100%"
         />
       )}

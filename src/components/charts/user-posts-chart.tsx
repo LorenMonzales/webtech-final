@@ -9,50 +9,27 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false })
 
 interface UserPostsChartProps {
   posts: Post[];
+  userId: number;
 }
 
-export default function UserPostsChart({ posts }: UserPostsChartProps) {
-  const [chartData, setChartData] = useState<any>({
+interface ChartData {
+  options: {
+    chart: { id: string; type: string };
+    xaxis: { categories: string[] };
+    colors: string[];
+  };
+  series: {
+    name: string;
+    data: number[];
+  }[];
+}
+
+export default function UserPostsChart({ posts, userId }: UserPostsChartProps) {
+  const [chartData, setChartData] = useState<ChartData>({
     options: {
-      chart: {
-        type: "bar",
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: "55%",
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ["transparent"],
-      },
-      xaxis: {
-        categories: [],
-      },
-      yaxis: {
-        title: {
-          text: "Number of Posts",
-        },
-      },
-      fill: {
-        opacity: 1,
-      },
-      tooltip: {
-        y: {
-          formatter: function (val: number) {
-            return val + " posts";
-          },
-        },
-      },
-      colors: ["#3B82F6"],
+      chart: { id: "user-posts", type: "bar" },
+      xaxis: { categories: [] },
+      colors: ["#34D399"],
     },
     series: [
       {
@@ -63,38 +40,26 @@ export default function UserPostsChart({ posts }: UserPostsChartProps) {
   });
 
   useEffect(() => {
-    if (posts && posts.length > 0) {
-      // Count posts by user ID
-      const userPostCounts: Record<string, number> = {};
-      
-      posts.forEach((post) => {
-        const userId = post.userId.toString();
-        userPostCounts[userId] = (userPostCounts[userId] || 0) + 1;
-      });
-      
-      // Get top 10 users by post count
-      const sortedUserIds = Object.keys(userPostCounts).sort(
-        (a, b) => userPostCounts[b] - userPostCounts[a]
-      ).slice(0, 10);
-      
-      // Set chart data
-      setChartData({
-        ...chartData,
+    if (posts.length > 0) {
+      const userPosts = posts.filter((post) => post.userId === userId);
+
+      setChartData((prev) => ({
+        ...prev,
         options: {
-          ...chartData.options,
+          ...prev.options,
           xaxis: {
-            categories: sortedUserIds.map(id => `User ${id}`),
+            categories: userPosts.map((post) => `Post ${post.id}`),
           },
         },
         series: [
           {
             name: "Posts",
-            data: sortedUserIds.map(id => userPostCounts[id]),
+            data: userPosts.map(() => 1), // 1 post per entry
           },
         ],
-      });
+      }));
     }
-  }, [posts]);
+  }, [posts, userId]);
 
   return (
     <div className="h-80">
