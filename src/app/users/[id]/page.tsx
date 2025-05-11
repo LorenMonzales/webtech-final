@@ -9,24 +9,24 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function UserProfilePage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>(); // ← fix: id will be string
 
   const { data: user, isLoading: isLoadingUser } = useQuery({
     queryKey: ["user", id],
-    queryFn: () => getUser(id),
+    queryFn: () => getUser(id!), // ← fix: id is forced non-null
     enabled: !!id,
   });
 
   const { data: posts, isLoading: isLoadingPosts } = useQuery({
     queryKey: ["userPosts", id],
-    queryFn: () => getUserPosts(id),
+    queryFn: () => getUserPosts(id!),
     enabled: !!id,
   });
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-
+      
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {isLoadingUser ? (
